@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CareFlow — AI Hospital Operations Platform</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0d0d1a;
+      color: white;
+      min-height: 100vh;
+    }
+
+    /* ── Shared Nav ── */
+    nav {
+      background: rgba(10, 10, 26, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #1e293b;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+    .nav-logo {
+      font-size: 20px;
+      font-weight: 900;
+      color: #93c5fd;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 8px;
+    }
+    .nav-link {
+      text-decoration: none;
+      color: #94a3b8;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all .2s;
+    }
+    .nav-link:hover {
+      background: #1e293b;
+      color: white;
+    }
+    .nav-link.active {
+      background: #1e3a8a;
+      color: #93c5fd;
+    }
+    .nav-badge {
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.4);
+      color: #f87171;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      letter-spacing: .05em;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #0d0d1a 0%, #0f172a 50%, #1e1b4b 100%);
+      padding: 100px 32px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(37,99,235,0.15) 0%, transparent 70%);
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 6px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      color: #93c5fd;
+      position: relative;
+    }
+    .hero h1 {
+      font-size: clamp(42px, 8vw, 80px);
+      font-weight: 900;
+      letter-spacing: -3px;
+      line-height: 1;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #ffffff 0%, #93c5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+    }
+    .hero p {
+      font-size: 18px;
+      color: #94a3b8;
+      max-width: 600px;
+      margin: 0 auto 48px;
+      line-height: 1.7;
+      position: relative;
+    }
+    .hero-cta {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      transition: all .2s;
+      box-shadow: 0 4px 20px rgba(37,99,235,0.4);
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(37,99,235,0.5);
+    }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: white;
+      text-decoration: none;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      transition: all .2s;
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+    }
+
+    /* ── Cards ── */
+    .cards-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 80px 32px;
+    }
+    .section-label {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #3b82f6;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      text-align: center;
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+    .section-sub {
+      text-align: center;
+      color: #6b7280;
+      font-size: 16px;
+      margin-bottom: 56px;
+    }
+    .page-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+    }
+    .page-card {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 20px;
+      overflow: hidden;
+      text-decoration: none;
+      color: white;
+      transition: all .25s;
+      display: flex;
+      flex-direction: column;
+    }
+    .page-card:hover {
+      border-color: #2563eb;
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(37,99,235,0.2);
+    }
+    .card-preview {
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-preview.blue {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+    }
+    .card-preview.dark {
+      background: linear-gradient(135deg, #0a0a1a 0%, #0f172a 50%, #1a1040 100%);
+    }
+    .card-preview-tag {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.7);
+    }
+    .card-body {
+      padding: 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .card-title {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .card-desc {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.6;
+      flex: 1;
+      margin-bottom: 20px;
+    }
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+    .card-tag {
+      background: #1e3a8a;
+      color: #93c5fd;
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .card-tag.red {
+      background: rgba(239,68,68,0.15);
+      color: #f87171;
+    }
+    .card-cta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      font-weight: 700;
+      color: #3b82f6;
+    }
+
+    /* ── Stats ── */
+    .stats-bar {
+      background: #111827;
+      border-top: 1px solid #1f2937;
+      border-bottom: 1px solid #1f2937;
+      padding: 48px 32px;
+    }
+    .stats-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 32px;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 48px;
+      font-weight: 900;
+      letter-spacing: -2px;
+    }
+    .stat-num.red  { color: #f87171; }
+    .stat-num.blue { color: #60a5fa; }
+    .stat-num.green { color: #4ade80; }
+    .stat-desc {
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 32px;
+      text-align: center;
+      color: #374151;
+      font-size: 12px;
+      border-top: 1px solid #111827;
+    }
+    footer span { color: #4b5563; }
+  </style>
+</head>
+<body>
+
+  <!-- ── Nav ── -->
+  <nav>
+    <a href="index.html" class="nav-logo">🚑 CareFlow</a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link active">Home</a>
+      <a href="diagram.html" class="nav-link">📊 Diagram</a>
+      <a href="app-preview.html" class="nav-link">📱 App Preview</a>
+      <span class="nav-badge">Hackachusetts 2026</span>
+    </div>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <div class="hero-badge">🏥 Healthcare &amp; Biotech Track</div>
+    <h1>CareFlow</h1>
+    <p>An AI-powered operations platform that helps hospitals identify bottlenecks, coordinate available resources, and reduce unnecessary patient waiting.</p>
+    <div class="hero-cta">
+      <a href="diagram.html" class="btn-primary">📊 View Operations Diagram</a>
+      <a href="app-preview.html" class="btn-secondary">📱 See App Preview</a>
+    </div>
+  </section>
+
+  <!-- ── Stats ── -->
+  <div class="stats-bar">
+    <div class="stats-inner">
+      <div>
+        <div class="stat-num red">37.5%</div>
+        <div class="stat-desc">of behavioral-health ED visits involved boarding for 12+ hours</div>
+      </div>
+      <div>
+        <div class="stat-num blue">12h+</div>
+        <div class="stat-desc">average boarding time threshold for at-risk patients</div>
+      </div>
+      <div>
+        <div class="stat-num green">~4h</div>
+        <div class="stat-desc">estimated wait reduction per patient with AI-optimized routing</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Page Cards ── -->
+  <section class="cards-section">
+    <div class="section-label">Explore the Project</div>
+    <h2 class="section-title">Two Views, One Platform</h2>
+    <p class="section-sub">Dive into the ops research or see how the patient-facing app works.</p>
+
+    <div class="page-cards">
+
+      <!-- Card 1: Diagram -->
+      <a href="diagram.html" class="page-card">
+        <div class="card-preview blue">
+          📊
+          <div class="card-preview-tag">Operations Research</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Operations Diagram</div>
+          <div class="card-desc">
+            The full breakdown of the patient flow problem — from arrival to boarding. Includes Little's Law modeling, live dashboard mockup, transfer coordination logic, and an interactive capacity simulator.
+          </div>
+          <div class="card-tags">
+            <span class="card-tag">Patient Flow</span>
+            <span class="card-tag">Little's Law</span>
+            <span class="card-tag">Queueing Theory</span>
+            <span class="card-tag">Live Dashboard</span>
+          </div>
+          <div class="card-cta">
+            <span>View Diagram →</span>
+            <span>10 sections</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 2: App Preview -->
+      <a href="app-preview.html" class="page-card">
+        <div class="card-preview dark">
+          📱
+          <div class="card-preview-tag">React Native · Expo</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">App Preview</div>
+          <div class="card-desc">
+            Three iPhone screens showing what CareFlow looks like in the hands of patients and dispatchers: an emergency SOS interface, real-time ambulance tracking, and live hospital capacity data.
+          </div>
+          <div class="card-tags">
+            <span class="card-tag red">Emergency SOS</span>
+            <span class="card-tag">Live Tracking</span>
+            <span class="card-tag">Hospital Data</span>
+          </div>
+          <div class="card-cta">
+            <span>View App Preview →</span>
+            <span>3 screens</span>
+          </div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>Simulated data only · <span>Hackachusetts 2026 · Healthcare &amp; Biotech Track</span> · Built by Anthony &amp; Austin</p>
+  </footer>
+
+</body>
+</html>

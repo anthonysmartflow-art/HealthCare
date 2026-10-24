@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CareFlow — Operations Diagram</title>
+  <style>
+    /* ── Shared Nav ── */
+    .cf-nav {
+      background: rgba(10, 10, 26, 0.97);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #1e293b;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+    .cf-nav-logo {
+      font-size: 20px;
+      font-weight: 900;
+      color: #93c5fd;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cf-nav-links {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .cf-nav-link {
+      text-decoration: none;
+      color: #94a3b8;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all .2s;
+    }
+    .cf-nav-link:hover { background: #1e293b; color: white; }
+    .cf-nav-link.active { background: #1e3a8a; color: #93c5fd; }
+    .cf-nav-badge {
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.4);
+      color: #f87171;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      letter-spacing: .05em;
+    }
+  </style>
+  <style>
+    :root {
+      --blue: #2563eb;
+      --blue-light: #dbeafe;
+      --blue-dark: #1e40af;
+      --green: #16a34a;
+      --green-light: #dcfce7;
+      --red: #dc2626;
+      --red-light: #fee2e2;
+      --yellow: #d97706;
+      --yellow-light: #fef3c7;
+      --gray: #6b7280;
+      --gray-light: #f3f4f6;
+      --bg: #f8fafc;
+      --white: #ffffff;
+      --text: #111827;
+      --text-muted: #6b7280;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+      color: white;
+      padding: 40px 24px 32px;
+      text-align: center;
+    }
+    header .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 999px;
+      padding: 4px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    header h1 { font-size: clamp(28px, 5vw, 48px); font-weight: 800; letter-spacing: -1px; }
+    header p  { margin-top: 10px; font-size: 16px; opacity: .85; max-width: 620px; margin-left: auto; margin-right: auto; }
+
+    /* ── Layout ── */
+    main { max-width: 1100px; margin: 0 auto; padding: 32px 20px 80px; }
+
+    section { margin-bottom: 56px; }
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--blue-dark);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2 .num {
+      background: var(--blue);
+      color: white;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800;
+      flex-shrink: 0;
+    }
+    .section-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; margin-left: 42px; }
+
+    /* ── Stat Cards ── */
+    .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .stat-card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      text-align: center;
+    }
+    .stat-card .stat-num { font-size: 42px; font-weight: 800; line-height: 1; }
+    .stat-card .stat-label { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+    .stat-card.red   .stat-num { color: var(--red); }
+    .stat-card.yellow .stat-num { color: var(--yellow); }
+    .stat-card.blue  .stat-num { color: var(--blue); }
+    .stat-note { font-size: 11px; color: var(--text-muted); margin-top: 10px; text-align: center; font-style: italic; }
+
+    /* ── Flow Diagram ── */
+    .flow-wrap {
+      background: var(--white);
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 28px 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      overflow-x: auto;
+    }
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      min-width: 700px;
+    }
+    .flow-step {
+      flex: 1;
+      background: var(--blue-light);
+      border: 2px solid var(--blue);
+      border-radius: 10px;
+      padding: 14px 10px;
+      text-align: center;
+      position: relative;
+    }
+    .flow-step .icon { font-size: 26px; }
+    .flow-step .label { font-size: 12px; font-weight: 700; margin-top: 6px; color: var(--blue-dark); }
+    .flow-step .sub   { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+    .flow-step.bottleneck {
+      background: var(--red-light);
+      border-color: var(--red);
+    }
+    .flow-step.bottleneck .label { color: var(--red); }
+
+    .arrow {
+      font-size: 22px;
+      color: var(--gray);
+      padding: 0 6px;
+      flex-shrink: 0;
+    }
+
+    /* ── Bottleneck Table ── */
+    .ops-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      font-size: 14px;
+    }
+    .ops-table thead { background: var(--blue); color: white; }
+    .ops-table thead th { padding: 12px 16px; text-align: left; font-weight: 600; }
+    .ops-table tbody tr { border-bottom: 1px solid #e2e8f0; }
+    .ops-table tbody tr:last-child { border-bottom: none; }
+    .ops-table tbody tr:nth-child(even) { background: var(--gray-light); }
+    .ops-table td { padding: 12px 16px; vertical-align: top; }
+    .ops-table td:first-child { font-weight: 600; color: var(--blue-dark); }
+
+    /* ── Dashboard Mockup ── */
+    .dashboard {
+      background: #0f172a;
+      border-radius: 14px;
+      padding: 20px;
+      color: white;
+      font-size: 13px;
+    }
+    .db-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .db-title { font-size: 16px; font-weight: 700; color: #93c5fd; }
+    .db-live { background: #16a34a; color: white; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+    .db-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+    .db-metric {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 14px;
+      border: 1px solid #334155;
+    }
+    .db-metric .val { font-size: 28px; font-weight: 800; }
+    .db-metric .key { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    .db-metric.warn .val { color: #f87171; }
+    .db-metric.ok   .val { color: #4ade80; }
+    .db-metric.info .val { color: #60a5fa; }
+
+    .db-beds { display: grid; grid-template-columns: repeat(auto-fill, minmax(28px, 1fr)); gap: 5px; margin-bottom: 14px; }
+    .bed {
+      width: 28px; height: 28px;
+      border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+    }
+    .bed.occupied { background: #dc2626; }
+    .bed.available { background: #16a34a; }
+    .bed.pending   { background: #d97706; }
+
+    .db-ai {
+      background: #1e3a8a;
+      border: 1px solid #2563eb;
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .ai-icon { font-size: 20px; flex-shrink: 0; }
+    .ai-text { font-size: 12px; line-height: 1.5; color: #bfdbfe; }
+    .ai-text strong { color: white; }
+
+    /* ── Capacity Slider ── */
+    .slider-section {
+      background: var(--white);
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .slider-section h3 { font-size: 16px; font-weight: 700; margin-bottom: 18px; color: var(--blue-dark); }
+    .slider-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 600px) { .slider-row { grid-template-columns: 1fr; } }
+    .slider-item label { font-size: 13px; font-weight: 600; color: var(--text); display: block; margin-bottom: 6px; }
+    .slider-item input[type=range] { width: 100%; accent-color: var(--blue); }
+    .slider-item .val-display {
+      display: inline-block;
+      background: var(--blue-light);
+      color: var(--blue-dark);
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      margin-left: 8px;
+    }
+
+    .utilization-bar-wrap {
+      margin-top: 20px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      height: 22px;
+      overflow: hidden;
+      position: relative;
+    }
+    .utilization-bar {
+      height: 100%;
+      border-radius: 999px;
+      transition: width .3s ease, background .3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+    }
+    #util-label {
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    /* ── Transfer Diagram ── */
+    .transfer-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+    @media (max-width: 600px) {
+      .transfer-grid { grid-template-columns: 1fr; }
+      .transfer-mid  { transform: rotate(90deg); }
+    }
+    .hospital-card {
+      background: var(--white);
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .hospital-card.overloaded { border-color: var(--red); background: var(--red-light); }
+    .hospital-card.available  { border-color: var(--green); background: var(--green-light); }
+    .hospital-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+    .hospital-card.overloaded h4 { color: var(--red); }
+    .hospital-card.available  h4 { color: var(--green); }
+    .hospital-stat { font-size: 13px; margin-bottom: 5px; color: var(--text); }
+    .transfer-mid { text-align: center; }
+    .transfer-mid .arrow-big { font-size: 36px; color: var(--blue); }
+    .transfer-mid .ai-badge {
+      background: var(--blue);
+      color: white;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    /* ── Role Cards ── */
+    .role-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .role-card {
+      background: var(--white);
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .role-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .role-card ul { padding-left: 18px; font-size: 13px; color: var(--text); line-height: 1.8; }
+    .role-card.you h4   { color: #7c3aed; }
+    .role-card.austin h4 { color: var(--blue-dark); }
+    .role-card.both h4   { color: var(--green); }
+
+    /* ── Pitch Card ── */
+    .pitch {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      border-radius: 16px;
+      padding: 32px;
+      color: white;
+      text-align: center;
+    }
+    .pitch .quote {
+      font-size: clamp(15px, 2.5vw, 20px);
+      font-style: italic;
+      line-height: 1.7;
+      max-width: 760px;
+      margin: 0 auto 16px;
+    }
+    .pitch .source { font-size: 12px; opacity: .7; }
+
+    /* ── Little's Law Box ── */
+    .law-box {
+      background: #1e293b;
+      color: white;
+      border-radius: 14px;
+      padding: 28px 24px;
+      text-align: center;
+    }
+    .law-box .formula {
+      font-size: 26px;
+      font-weight: 800;
+      color: #93c5fd;
+      margin: 12px 0;
+      font-family: 'Courier New', monospace;
+    }
+    .law-box .formula span { color: #f9a8d4; }
+    .law-parts {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    .law-part {
+      background: #334155;
+      border-radius: 8px;
+      padding: 10px 16px;
+      text-align: center;
+    }
+    .law-part .sym { font-size: 20px; font-weight: 800; color: #93c5fd; font-family: monospace; }
+    .law-part .def { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+
+    .disclaimer { font-size: 11px; color: var(--text-muted); font-style: italic; margin-top: 10px; text-align: center; }
+
+    /* ── Misc ── */
+    .tag {
+      display: inline-block;
+      background: var(--blue-light);
+      color: var(--blue-dark);
+      border-radius: 999px;
+      padding: 2px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin: 2px;
+    }
+    .divider { height: 1px; background: #e2e8f0; margin: 48px 0; }
+  </style>
+</head>
+<body>
+
+<nav class="cf-nav">
+  <a href="index.html" class="cf-nav-logo">🚑 CareFlow</a>
+  <div class="cf-nav-links">
+    <a href="index.html" class="cf-nav-link">Home</a>
+    <a href="diagram.html" class="cf-nav-link active">📊 Diagram</a>
+    <a href="app-preview.html" class="cf-nav-link">📱 App Preview</a>
+    <span class="cf-nav-badge">Hackachusetts 2026</span>
+  </div>
+</nav>
+
+<header>
+  <div class="badge">🏥 Hackachusetts 2026 · Healthcare &amp; Biotech Track</div>
+  <h1>CareFlow</h1>
+  <p>An AI-powered operations platform that helps hospitals identify bottlenecks, coordinate available resources, and reduce unnecessary patient waiting.</p>
+</header>
+
+<main>
+
+  <!-- ── 1. The Problem ── -->
+  <section>
+    <h2><span class="num">1</span>The Problem We're Solving</h2>
+    <p class="section-sub">Massachusetts Health Policy Commission, 2024 data</p>
+
+    <div class="stat-row">
+      <div class="stat-card red">
+        <div class="stat-num">37.5%</div>
+        <div class="stat-label">of behavioral-health ED visits involved boarding for 12+ hours</div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-num">12h+</div>
+        <div class="stat-label">boarding threshold — patients waiting far beyond clinical need</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-num">💲</div>
+        <div class="stat-label">Boarded visits cost significantly more than non-boarded comparable visits</div>
+      </div>
+    </div>
+    <p class="stat-note">Source: Massachusetts Health Policy Commission report, 2024. Illustrative framing only.</p>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── 2. Core Insight ── -->
+  <section>
+    <h2><span class="num">2</span>The Core Insight</h2>
+    <p class="section-sub">This is an operations problem, not just a technology problem</p>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      <div style="background: var(--red-light); border: 2px solid var(--red); border-radius: 12px; padding: 20px;">
+        <div style="font-size: 22px; margin-bottom: 8px;">❌</div>
+        <div style="font-weight: 700; color: var(--red); margin-bottom: 6px;">Old thinking</div>
+        <div style="font-size: 14px;">"The closest hospital" or "the hospital with a bed available" is where a patient should go.</div>
+      </div>
+      <div style="background: var(--green-light); border: 2px solid var(--green); border-radius: 12px; padding: 20px;">
+        <div style="font-size: 22px; margin-bottom: 8px;">✅</div>
+        <div style="font-weight: 700; color: var(--green); margin-bottom: 6px;">CareFlow thinking</div>
+        <div style="font-size: 14px;">The <em>right</em> facility is determined by capacity, staffing, patient need, transfer time, and current flow — simultaneously.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── 3. Patient Flow Diagram ── -->
+  <section>
+    <h2><span class="num">3</span>Patient Flow — Where Delays Happen</h2>
+    <p class="section-sub">Track every step from arrival to resolution. The red step is the current primary bottleneck.</p>
+
+    <div class="flow-wrap">
+      <div class="flow">
+        <div class="flow-step">
+          <div class="icon">🚨</div>
+          <div class="label">Patient Arrives</div>
+          <div class="sub">ED intake</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="flow-step">
+          <div class="icon">📋</div>
+          <div class="label">Triage &amp; Eval</div>
+          <div class="sub">Needs assessment</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="flow-step bottleneck">
+          <div class="icon">🛏️</div>
+          <div class="label">⚠️ Bed Assignment</div>
+          <div class="sub">Bottleneck — beds occupied, no match found</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="flow-step">
+          <div class="icon">🤝</div>
+          <div class="label">Transfer Decision</div>
+          <div class="sub">Manual, slow today</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="flow-step">
+          <div class="icon">🏥</div>
+          <div class="label">Admit or Transfer</div>
+          <div class="sub">Right facility</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="flow-step" style="background: var(--green-light); border-color: var(--green);">
+          <div class="icon">✅</div>
+          <div class="label">Care Delivered</div>
+          <div class="sub" style="color: var(--green);">Resolution</div>
+        </div>
+      </div>
+    </div>
+    <p class="disclaimer">Illustrative flow diagram. Actual clinical pathways vary by facility and patient condition.</p>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── 4. Operations Concepts ── -->
+  <section>
+    <h2><span class="num">4</span>Operations Concepts Applied</h2>
+    <p class="section-sub">This is where your OPS class becomes a competitive edge</p>
+
+    <table class="ops-table">
+      <thead>
+        <tr>
+          <th>Operations Concept</th>
+          <th>Application to CareFlow</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>🔴 Bottlenecks</td>
+          <td>Identify whether beds, staffing, transfers, or discharge delays are the binding constraint on patient flow</td>
+        </tr>
+        <tr>
+          <td>📊 Capacity Utilization</td>
+          <td>Understand which facilities are overloaded and which have genuinely usable capacity — not just open beds</td>
+        </tr>
+        <tr>
+          <td>📐 Queueing Theory</td>
+          <td>Estimate how variable patient arrival rates and treatment times interact to create unpredictable waits</td>
+        </tr>
+        <tr>
+          <td>🔁 Process Flow</td>
+          <td>Map each step from arrival → evaluation → admission → transfer → discharge to find time waste</td>
+        </tr>
+        <tr>
+          <td>📏 Little's Law</td>
+          <td>Relate arrival rate, average wait time, and number of patients in the system quantitatively</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── 5. Little's Law ── -->
+  <section>
+    <h2><span class="num">5</span>Little's Law — The Math Behind the Wait</h2>
+    <p class="section-sub">This formula gives CareFlow its quantitative backbone</p>
+
+    <div class="law-box">
+      <div style="font-size: 14px; color: #94a3b8; margin-bottom: 4px;">The fundamental relationship between waiting and throughput</div>
+      <div class="formula">L = <span>λ</span> × W</div>
+      <div class="law-parts">
+        <div class="law-part">
+          <div class="sym">L</div>
+          <div class="def">Avg # patients<br>in the system</div>
+        </div>
+        <div class="law-part">
+          <div class="sym" style="color:#f9a8d4;">λ</div>
+          <div class="def">Arrival rate<br>(patients/hour)</div>
+        </div>
+        <div class="law-part">
+          <div class="sym">W</div>
+          <div class="def">Avg time<br>per patient</div>
+        </div>
+      </div>
+      <div style="margin-top: 16px; font-size: 13px; color: #94a3b8; line-height: 1.6; max-width: 600px; margin-left: auto; margin-right: auto;">
+        If you know how many patients are boarding (L) and the arrival rate (λ), you can infer the average boarding duration (W) — and identify where interventions have the biggest impact.
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── 6. Live Dashboard ── -->
+  <section>
+    <h2><span class="num">6</span>CareFlow Dashboard — What It Looks Like</h2>
+    <p class="section-sub">Hospital staff sees real-time capacity, bottlenecks, and AI recommendations</p>
+
+    <div class="dashboard">
+      <div class="db-header">
+        <div class="db-title">🏥 Boston Medical Center — ED Operations</div>
+        <div class="db-live">● LIVE</div>
+      </div>
+
+      <div class="db-grid">
+        <div class="db-metric warn">
+          <div class="val">18</div>
+          <div class="key">Patients Waiting</div>
+        </div>
+        <div class="db-metric warn">
+          <div class="val">4</div>
+          <div class="key">Available Beds</div>
+        </div>
+        <div class="db-metric warn">
+          <div class="val">14h</div>
+          <div class="key">Longest Current Wait</div>
+        </div>
+      </div>
+
+      <div style="font-size: 11px; color: #94a3b8; margin-bottom: 8px;">Bed status (🔴 occupied · 🟡 pending discharge · 🟢 available)</div>
+      <div class="db-beds">
+        <!-- 24 beds -->
+        <div class="bed occupied">🔴</div><div class="bed occupied">🔴</div><div class="bed occupied">🔴</div>
+        <div class="bed occupied">🔴</div><div class="bed occupied">🔴</div><div class="bed occupied">🔴</div>
+        <div class="bed occupied">🔴</div><div class="bed pending">🟡</div><div class="bed pending">🟡</div>
+        <div class="bed pending">🟡</div><div class="bed occupied">🔴</div><div class="bed occupied">🔴</div>
+        <div class="bed occupied">🔴</div><div class="bed occupied">🔴</div><div class="bed occupied">🔴</div>
+        <div class="bed occupied">🔴</div><div class="bed occupied">🔴</div><div class="bed occupied">🔴</div>
+        <div class="bed occupied">🔴</div><div class="bed available">🟢</div><div class="bed available">🟢</div>
+        <div class="bed available">🟢</div><div class="bed available">🟢</div><div class="bed occupied">🔴</div>
+      </div>
+
+      <div class="db-ai">
+        <div class="ai-icon">🤖</div>
+        <div class="ai-text">
+          <strong>AI Analysis:</strong> Current bottleneck is bed assignment — 3 patients awaiting discharge are blocking intake. 
+          <strong>Recommended action:</strong> 6 patients are stable for transfer to McLean Hospital (2 available beds) and Cambridge Health Alliance (4 available beds). Estimated wait reduction: <strong>~4.2 hours</strong> average.
+        </div>
+      </div>
+    </div>
+    <p class="disclaimer">Simulated data only. Not real hospital information.</p>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── 7. Transfer Coordination ── -->
+  <section>
+    <h2><span class="num">7</span>Transfer Coordination — The Key Feature</h2>
+    <p class="section-sub">AI matches overloaded facilities to those with usable capacity</p>
+
+    <div class="transfer-grid">
+      <div class="hospital-card overloaded">
+        <h4>🔴 Boston Medical Center</h4>
+        <div class="hospital-stat">📊 Utilization: <strong>94%</strong></div>
+        <div class="hospital-stat">🛏️ Beds available: <strong>2 of 36</strong></div>
+        <div class="hospital-stat">⏱️ Avg wait: <strong>11.2 hours</strong></div>
+        <div class="hospital-stat">🚨 Boarding patients: <strong>12</strong></div>
+        <div style="margin-top: 10px; font-size: 12px; color: var(--red); font-weight: 600;">At capacity — coordination needed</div>
+      </div>
+
+      <div class="transfer-mid">
+        <div class="arrow-big">⇄</div>
+        <div class="ai-badge">🤖 AI Match</div>
+      </div>
+
+      <div class="hospital-card available">
+        <h4>🟢 McLean Hospital</h4>
+        <div class="hospital-stat">📊 Utilization: <strong>61%</strong></div>
+        <div class="hospital-stat">🛏️ Beds available: <strong>14 of 36</strong></div>
+        <div class="hospital-stat">⏱️ Avg wait: <strong>1.8 hours</strong></div>
+        <div class="hospital-stat">✅ Accepts: <strong>Behavioral health</strong></div>
+        <div style="margin-top: 10px; font-size: 12px; color: var(--green); font-weight: 600;">Capacity available — can receive transfer</div>
+      </div>
+    </div>
+    <p class="disclaimer">Simulated facilities and data. Not real patient or hospital information.</p>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── 8. Interactive Capacity ── -->
+  <section>
+    <h2><span class="num">8</span>Interactive: Demand vs. Capacity</h2>
+    <p class="section-sub">Adjust the sliders to see how demand and capacity interact — this is the operations engine behind CareFlow</p>
+
+    <div class="slider-section">
+      <h3>📐 Simulated Hospital Capacity Model</h3>
+      <div class="slider-row">
+        <div class="slider-item">
+          <label>Patients arriving per day <span class="val-display" id="arrive-val">6</span></label>
+          <input type="range" min="1" max="20" value="6" id="arrive-slider" />
+        </div>
+        <div class="slider-item">
+          <label>Patients treated per day <span class="val-display" id="treat-val">8</span></label>
+          <input type="range" min="1" max="20" value="8" id="treat-slider" />
+        </div>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 6px;">
+          <span>Demand / Capacity Ratio</span>
+          <span id="ratio-text">75%</span>
+        </div>
+        <div class="utilization-bar-wrap">
+          <div class="utilization-bar" id="util-bar" style="width: 75%; background: var(--green);">75%</div>
+        </div>
+        <div id="util-label" style="color: var(--green);">✅ Manageable — capacity exceeds demand</div>
+      </div>
+
+      <div id="ops-insight" style="margin-top: 16px; padding: 14px; background: var(--blue-light); border-radius: 10px; font-size: 13px; color: var(--blue-dark); line-height: 1.6;"></div>
+    </div>
+    <p class="disclaimer">Simplified model for illustration. Variable arrival rates and treatment times create queues even when average capacity exceeds average demand.</p>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── 9. Division of Work ── -->
+  <section>
+    <h2><span class="num">9</span>Division of Work</h2>
+    <p class="section-sub">How you and Austin split the build</p>
+
+    <div class="role-grid">
+      <div class="role-card you">
+        <h4>👤 You — Anthony</h4>
+        <ul>
+          <li>Map the patient journey</li>
+          <li>Identify operational bottlenecks</li>
+          <li>Choose meaningful metrics</li>
+          <li>Design the interface and UX</li>
+          <li>Explain business &amp; social impact</li>
+          <li>Frame the ops improvements</li>
+        </ul>
+      </div>
+      <div class="role-card austin">
+        <h4>💻 Austin</h4>
+        <ul>
+          <li>Build the simulation engine</li>
+          <li>Hospital-matching logic</li>
+          <li>AI bottleneck analysis</li>
+          <li>Technical integrations</li>
+          <li>Backend / data modeling</li>
+        </ul>
+      </div>
+      <div class="role-card both">
+        <h4>🤝 Together</h4>
+        <ul>
+          <li>Run realistic scenarios</li>
+          <li>Verify recommendations</li>
+          <li>Demo before/after metrics</li>
+          <li>Rehearse the pitch</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── 10. The Pitch ── -->
+  <section>
+    <h2><span class="num">10</span>The Pitch</h2>
+
+    <div class="pitch">
+      <div class="quote">
+        "Massachusetts doesn't just have a hospital capacity problem. It has a <strong>patient-flow coordination problem</strong>. We're building an AI-powered operations platform that helps hospitals identify bottlenecks, coordinate available resources, and reduce unnecessary waiting."
+      </div>
+      <div class="source">
+        <span class="tag" style="background: rgba(255,255,255,.2); color: white;">Hackachusetts 2026</span>
+        <span class="tag" style="background: rgba(255,255,255,.2); color: white;">Healthcare &amp; Biotech Track</span>
+        <span class="tag" style="background: rgba(255,255,255,.2); color: white;">CareFlow</span>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px; background: var(--yellow-light); border: 1px solid var(--yellow); border-radius: 12px; padding: 18px;">
+      <div style="font-weight: 700; font-size: 14px; color: var(--yellow); margin-bottom: 6px;">⚠️ Honest Qualification</div>
+      <div style="font-size: 13px; line-height: 1.7; color: var(--text);">
+        Better coordination helps, but no algorithm can create beds or staff that don't exist. Massachusetts also faces workforce shortages, access to community-based care, and reimbursement issues. CareFlow addresses the <em>coordination layer</em> of the problem — making what exists work better.
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // ── Interactive Capacity Slider ──
+  const arriveSlider = document.getElementById('arrive-slider');
+  const treatSlider  = document.getElementById('treat-slider');
+  const arriveVal    = document.getElementById('arrive-val');
+  const treatVal     = document.getElementById('treat-val');
+  const ratioText    = document.getElementById('ratio-text');
+  const utilBar      = document.getElementById('util-bar');
+  const utilLabel    = document.getElementById('util-label');
+  const opsInsight   = document.getElementById('ops-insight');
+
+  function updateCapacity() {
+    const arrive = parseInt(arriveSlider.value);
+    const treat  = parseInt(treatSlider.value);
+    arriveVal.textContent = arrive;
+    treatVal.textContent  = treat;
+
+    const ratio = Math.round((arrive / treat) * 100);
+    const pct   = Math.min(ratio, 100);
+    ratioText.textContent   = ratio + '%';
+    utilBar.style.width     = pct + '%';
+    utilBar.textContent     = ratio + '%';
+
+    let color, label, insight;
+
+    if (ratio < 70) {
+      color   = 'var(--green)';
+      label   = '✅ Comfortable — system has slack to absorb surges';
+      insight = `With only ${arrive} arrivals against ${treat} treatment slots, the system has real buffer. Variable demand won't cause queues to spiral. CareFlow would flag this facility as a good transfer destination.`;
+    } else if (ratio < 90) {
+      color   = 'var(--yellow)';
+      label   = '⚠️ Watch closely — approaching critical utilization';
+      insight = `At ${ratio}% utilization, small spikes in arrivals can trigger rapid queue growth. This is where queueing theory predicts non-linear wait increases. CareFlow's AI would begin flagging this facility and pre-identifying transfer options before the system overloads.`;
+    } else if (ratio <= 100) {
+      color   = 'var(--red)';
+      label   = '🔴 Near or at capacity — boarding risk is high';
+      insight = `${ratio}% utilization means the system has almost no buffer. Even random variation in arrivals or treatment times will cause waits to spike sharply. CareFlow would trigger transfer coordination immediately and flag this as the bottleneck facility.`;
+    } else {
+      color   = 'var(--red)';
+      label   = `🚨 Overloaded — demand exceeds capacity by ${ratio - 100}%`;
+      utilBar.style.width = '100%';
+      utilBar.textContent = '>100%';
+      insight = `Arrivals (${arrive}/day) exceed treatment capacity (${treat}/day). The queue will grow indefinitely without intervention. Little's Law tells us: L grows without bound when λ > capacity. CareFlow would escalate to system-wide coordination and trigger an alert for all nearby facilities.`;
+    }
+
+    utilBar.style.background  = color;
+    utilLabel.style.color      = color;
+    utilLabel.textContent      = label;
+    opsInsight.textContent     = insight;
+  }
+
+  arriveSlider.addEventListener('input', updateCapacity);
+  treatSlider.addEventListener('input', updateCapacity);
+  updateCapacity();
+</script>
+
+</body>
+</html>
